@@ -1,11 +1,8 @@
-################## MERGE ##############
 # UNO PROJECT | Hackathon January 11, 2020
 # CARD CLASS
 
 import random
-import pygame
 import DisplayManager
-
 
 # Properties for cards in UNO
 colours      = ["red", "blue", "green", "yellow"]
@@ -89,20 +86,24 @@ def displayDeck(deck):
         card.displayCard()
         print("")
 
-def isMiddleValid(deck, middle):
+def setMiddle(deck, middle):
     ''' This function will check if the middle at the start of the game is valid
     (i.e. The middle can't be a 'special' card)
-    Return True if valid and False if invalid '''
-    # If the card is not a special card, it is valid
-    if middle.special is None:
-        return True
-    else:
-        return False
+    If the middle is invalid, then continue to draw cards from the deck until valid '''
+    # If the card is a non-coloured special card (i.e. 'Wildcard')
+    if middle.special ==wildCards[0] or middle.special == wildCards[1]:
+        # The middle card is put at the back of the deck and a new middle card is drawn
+        deck.append(middle)
+        middle = deck.pop(0)
 
-def setMiddle(deck):
-    ''' This function is called when the current middle is invalid,
-    It draws a card from the top of the deck and sets it as the new middle '''
-    return deck.pop(0)
+        setMiddle(deck, middle)
+
+    # If the card is a coloured special card (i.e. Skip, Reverse, +2)
+    elif middle.special == specialCards[0] or middle.special == specialCards[1] or middle.special == specialCards[2]:
+        deck.append(middle)
+        middle = deck.pop(0)
+
+        setMiddle(deck, middle)
 
 def drawACard(deck, player):
     ''' This function will allow the player to draw a card from the top of the deck '''
@@ -205,8 +206,7 @@ def main():
 
     # Set the middle card to start the game by drawing from the top of the deck
     middle = deck.pop(0)
-    while isMiddleValid(deck, middle) is False:
-        middle = setMiddle(deck)
+    setMiddle(deck, middle)
 
     # Deal 7 cards to each player's hand
     for i in range(4):
